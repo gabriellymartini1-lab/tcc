@@ -1,5 +1,3 @@
-
-# ARQUIVO AJUSTADO VISUALMENTE
 import customtkinter as ctk
 from tkinter import messagebox
 import psycopg
@@ -62,7 +60,7 @@ ctk.CTkLabel(
     frame_inicial,
     text="CINEMA RUBY",
     font=("Arial", 36, "bold"),
-    text_color="#C05A9D"
+    text_color="#F8C4E6"
 ).pack(pady=(80,30))
 
 ctk.CTkButton(
@@ -86,7 +84,7 @@ ctk.CTkLabel(
     frame_sala1,
     text="SALA 1",
     font=("Arial", 30, "bold"),
-    text_color="#C05A9D"
+    text_color="#F7D9ED"
 ).pack(pady=(15,5))
 
 ctk.CTkLabel(
@@ -105,7 +103,7 @@ for r_idx, fila in enumerate(filas):
         nome_assento = f"{fila}{coluna}"
         ocupado = assentos_no_banco.get(nome_assento, False)
 
-        cor = "#D97BA8" if ocupado else "#F4A6C1"
+        cor = "#D19AB4" if ocupado else "#E4C6D0"
         estado = "disabled" if ocupado else "normal"
 
         btn = ctk.CTkButton(
@@ -131,7 +129,7 @@ ctk.CTkButton(
     text="🎟 Reservar",
     width=280,
     height=55,
-    fg_color="#C05A9D"
+    fg_color="#D19ABE"
 ).pack(pady=8)
 
 ctk.CTkButton(
@@ -139,7 +137,7 @@ ctk.CTkButton(
     text="🏠 Voltar",
     width=280,
     height=55,
-    fg_color="#E8A8C8",
+    fg_color="#CC91AE",
     text_color="white",
     command=mostrar_sala_inicial
 ).pack(pady=8)
