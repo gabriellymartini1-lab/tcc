@@ -10,18 +10,7 @@ DB_CONFIG = {  # Cria um dicionario com as credenciais e configuracoes de acesso
 }  # Fecha a estrutura do dicionario de configuracao
 
 
-FILAS = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-]  # Define a lista com as letras correspondentes as 10 filas de assentos
+FILAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",]  # Define a lista com as letras correspondentes as 10 filas de assentos
 COLUNAS = list(
     range(1, 21)
 )  # Cria uma lista numerica de 1 a 20 para representar o numero de cada cadeira
@@ -40,6 +29,35 @@ def popular_banco_de_dados():  # Define a funcao responsavel por estruturar e po
             "A iniciar o povoamento do banco de dados..."
         )  # Exibe no terminal a mensagem de inicio de processamento
 
+        # --- CRIAÇÃO E POVOAÇÃO DA TABELA DE HISTÓRICO (COMPRAS) ---
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS compras (
+                id SERIAL PRIMARY KEY,
+                sala INT NOT NULL,
+                assentos TEXT NOT NULL,
+                tipo TEXT NOT NULL,
+                data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)  # Cria a tabela compras caso ela ainda nao exista
+        
+        cursor.execute("SELECT COUNT(*) FROM compras;")  # Verifica a quantidade de registos existentes na tabela
+        if cursor.fetchone()[0] == 0:  # Se a tabela de historico estiver vazia
+            dados_historico = [  # Lista com registos ficticios para teste
+                (1, "A1, A2, A3", "Reserva"),
+                (2, "C10, C11", "Reserva"),
+                (1, "A3", "Cancelamento"),
+                (3, "E5, E6, E7", "Reserva"),
+            ]
+            for sala, assentos, tipo in dados_historico:  # Percorre os dados ficticios
+                cursor.execute(
+                    "INSERT INTO compras (sala, assentos, tipo) VALUES (%s, %s, %s);",
+                    (sala, assentos, tipo)
+                )  # Insere cada registo de historico na tabela compras
+            print("[OK] Tabela 'compras' criada e populada com dados de historico iniciais!")
+        else:
+            print("[OK] Tabela 'compras' ja existente e verificada!")
+
+        # --- CRIAÇÃO E POVOAÇÃO DAS TABELAS DAS SALAS ---
         for num_sala in range(
             1, 6
         ):  # Inicia um loop que vai iterar de 1 ate 5 para processar as 5 salas
@@ -78,7 +96,7 @@ def popular_banco_de_dados():  # Define a funcao responsavel por estruturar e po
         cursor.close()  # Fecha o cursor do banco de dados libertando recursos do sistema
         conn.close()  # Encerra a conexao ativa com o servidor PostgreSQL
         print(
-            "\n[SUCESSO] Povoamento concluido com sucesso em todas as 5 salas!"
+            "\n[SUCESSO] Povoamento concluido com sucesso em todas as tabelas e salas!"
         )  # Imprime mensagem de sucesso total no terminal
 
     except Exception as error:  # Captura qualquer erro de conexao ou de instrucao SQL que ocorra

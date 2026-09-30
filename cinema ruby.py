@@ -1,5 +1,5 @@
 import customtkinter as ctk  # Importa a biblioteca CustomTkinter para criar a interface gráfica moderna
-from tkinter import messagebox, ttk  # Importa caixas de mensagem e a tabela (Treeview) do Tkinter
+from tkinter import messagebox, ttk  # Importa caixas de mensagem e o módulo ttk (Treeview/Style) do Tkinter
 import psycopg  # Importa a biblioteca para conectar o Python ao banco de dados PostgreSQL/pgAdmin
 from PIL import Image  # Importa o módulo Image do Pillow para abrir e manipular as imagens dos pôsteres
 from pathlib import Path  # Importa Path para manipular os caminhos de ficheiros de forma compatível com o sistema
@@ -30,6 +30,21 @@ def testar_conexao():  # Função para validar a conexão com o pgAdmin 4 ao ini
         print("Conexão com o PostgreSQL via pgAdmin 4 realizada com sucesso!")  # Exibe confirmação no terminal
     except Exception as error:  # Captura falha na conexão com a base de dados
         print("Erro ao conectar à base de dados pgAdmin 4:", error)  # Exibe o erro no terminal
+
+def registar_historico(num_sala, assentos, tipo):  # Regista transações de reserva/cancelamento no banco de dados
+    try:  # Inicia bloco de gravação no histórico
+        conn = psycopg.connect(**DB_CONFIG)  # Abre conexão com o PostgreSQL
+        cursor = conn.cursor()  # Cria o cursor
+        assentos_str = ", ".join(assentos)  # Formata a lista de assentos para texto
+        cursor.execute(  # Insere a compra/cancelamento na tabela compras
+            "INSERT INTO compras (sala, assentos, tipo) VALUES (%s, %s, %s);",  # Instrução SQL
+            (num_sala, assentos_str, tipo)  # Parâmetros
+        )  # Fim da instrução
+        conn.commit()  # Consolida a transação
+        cursor.close()  # Fecha cursor
+        conn.close()  # Fecha conexão
+    except Exception as error:  # Trata erros
+        print("Erro ao registar no histórico:", error)  # Exibe o erro no terminal
 
 def buscar_assentos_ocupados(num_sala):  # Define a função que consulta no PostgreSQL quais lugares já estão reservados
     status_assentos = {}  # Cria um dicionário vazio para guardar o estado final dos lugares (ex: {"A1": True})
@@ -97,6 +112,7 @@ def reservar(num_sala):  # Define a função para gravar a reserva dos assentos 
         cursor.close()  # Encerra o cursor
         conn.close()  # Encerra a conexão
 
+        registar_historico(num_sala, lista, "Reserva")  # Regista a reserva na tabela de histórico compras
         messagebox.showinfo("Reserva Realizada", f"Assentos reservados na Sala {num_sala}:\n{', '.join(lista)}")  # Mensagem de sucesso
         lista.clear()  # Limpa a lista temporária de seleção
         atualizar_assentos(num_sala)  # Atualiza a interface gráfica
@@ -135,6 +151,7 @@ def cancelar_reserva(num_sala):  # Nova função para CANCELAR a reserva de asse
         cursor.close()  # Encerra cursor
         conn.close()  # Encerra conexão
 
+        registar_historico(num_sala, lista, "Cancelamento")  # Regista o cancelamento na tabela de histórico compras
         messagebox.showinfo("Cancelamento Concluído", f"Reservas canceladas na Sala {num_sala}:\n{', '.join(lista)}")  # Mensagem de sucesso
         lista.clear()  # Limpa a lista de cancelamento
         atualizar_assentos(num_sala)  # Atualiza os botões no ecrã
@@ -169,11 +186,36 @@ def atualizar_assentos(num_sala):  # Define a função para re-sincronizar os bo
                     command=lambda b=btn, num=num_sala: alternar_assento_livre(b, num)  # Associa à ação de reservar
                 )  # Fim da configuração do botão livre
 
+def carregar_historico():  # Consulta e carrega os registos de compras do banco para a tabela gráfica
+    for item in tabela_historico.get_children():  # Limpa os elementos atuais da tabela visual
+        tabela_historico.delete(item)  # Elimina cada linha antiga
+
+    try:  # Bloco de tentativa de leitura do banco
+        conn = psycopg.connect(**DB_CONFIG)  # Abre conexão com o banco
+        cursor = conn.cursor()  # Cria o cursor
+        cursor.execute("SELECT id, sala, assentos, tipo, data_hora FROM compras ORDER BY id DESC;")  # Busca o histórico ordenado pelos mais recentes
+        registos = cursor.fetchall()  # Guarda todos os registos retornados
+
+        for reg in registos:  # Percorre cada registo do histórico
+            id_compra, sala, assentos, tipo, data_hora = reg  # Desempacota os dados do registo
+            data_formatada = data_hora.strftime("%d/%m/%Y %H:%M:%S") if data_hora else "-"  # Formata a data/hora para visualização
+            tabela_historico.insert("", "end", values=(id_compra, f"Sala {sala}", assentos, tipo, data_formatada))  # Insere a linha na tabela visual
+
+        cursor.close()  # Fecha cursor
+        conn.close()  # Fecha conexão
+    except Exception as error:  # Trata exceções de banco
+        messagebox.showerror("Erro", f"Erro ao carregar o histórico:\n{error}")  # Exibe aviso em caso de erro
+
 def mostrar_tela(frame_desejado):  # Define a função responsável pela alternância de ecrãs na interface
     frame_inicial.pack_forget()  # Oculta a ecrã inicial
+    frame_historico.pack_forget()  # Oculta a ecrã de histórico
     for f in frames_salas.values():  # Iterar por todas as telas de salas
         f.pack_forget()  # Oculta a ecrã de sala correspondente
     frame_desejado.pack(fill="both", expand=True)  # Exibe a ecrã solicitada
+
+def abrir_historico():  # Abre a tela de histórico e atualiza os seus dados
+    carregar_historico()  # Executa a busca dos dados no banco de dados
+    mostrar_tela(frame_historico)  # Exibe o frame do histórico na janela
 
 testar_conexao()  # Executa o teste de conexão inicial com o banco pgAdmin
 
@@ -189,6 +231,15 @@ frame_topo = ctk.CTkFrame(frame_inicial, fg_color="transparent")  # Cabeçalho t
 frame_topo.pack(fill="x", padx=65, pady=(25, 10))  # Posiciona o cabeçalho no topo com margens
 
 ctk.CTkLabel(frame_topo, text="CINEMA RUBY", font=("Arial", 32, "bold"), text_color="#D19ABE").pack(side="left")  # Adiciona o título no canto esquerdo
+
+# Botão para abrir a tela de histórico
+btn_historico = ctk.CTkButton(  # Instancia o botão do histórico
+    frame_topo, text="📜 HISTÓRICO", font=("Arial", 13, "bold"),  # Configura texto e fonte
+    fg_color="#8F4D75", hover_color="#713A5D", text_color="white", width=140, height=35,  # Estilização visual
+    command=abrir_historico  # Chama a função que abre a tela do histórico
+)  # Fim da criação do botão
+btn_historico.pack(side="right", padx=10)  # Posiciona o botão à direita no cabeçalho
+
 ctk.CTkLabel(frame_topo, text="INÍCIO", font=("Arial", 14, "bold"), text_color="#F7D9ED").pack(side="right", padx=15)  # Adiciona o indicador de aba à direita
 
 # Banners dos Filmes
@@ -296,6 +347,49 @@ for sala in info_salas:  # Loop para construir a interface de cada uma das salas
         fg_color="#CC91AE", hover_color="#B77A99", text_color="white", font=("Arial", 14, "bold"),  # Estilização visual
         command=lambda: mostrar_tela(frame_inicial)  # Volta para a tela inicial ao ser clicado
     ).pack(side="left", padx=10)  # Alinha o botão à esquerda
+
+# --- TELA DE HISTÓRICO DE COMPRAS ---
+frame_historico = ctk.CTkFrame(app, fg_color="#1A1518")  # Frame da tela de histórico
+
+ctk.CTkLabel(frame_historico, text="📜 HISTÓRICO DE COMPRAS E CANCELAMENTOS", font=("Arial", 26, "bold"), text_color="#D19ABE").pack(pady=25)  # Título da tela
+
+frame_tabela = ctk.CTkFrame(frame_historico, fg_color="#2B2026", corner_radius=15)  # Container visual para abrigar a tabela
+frame_tabela.pack(fill="both", expand=True, padx=65, pady=10)  # Posiciona o frame da tabela
+
+# Estilização da Treeview (Tabela)
+style = ttk.Style()  # Instancia o gestor de estilos do Tkinter via ttk
+style.theme_use("default")  # Aplica o tema padrão como base
+style.configure("Treeview", background="#2B2026", foreground="white", fieldbackground="#2B2026", rowheight=30, font=("Arial", 11))  # Configura cores das linhas
+style.configure("Treeview.Heading", background="#8F4D75", foreground="white", font=("Arial", 12, "bold"))  # Configura cores do cabeçalho
+style.map("Treeview", background=[("selected", "#C05A9D")])  # Define a cor de seleção das linhas
+
+colunas_hist = ("ID", "Sala", "Assentos", "Tipo", "Data / Hora")  # Define as colunas da tabela de histórico
+tabela_historico = ttk.Treeview(frame_tabela, columns=colunas_hist, show="headings")  # Cria a tabela Treeview
+
+tabela_historico.heading("ID", text="ID")  # Define cabeçalho da coluna ID
+tabela_historico.heading("Sala", text="SALA")  # Define cabeçalho da coluna Sala
+tabela_historico.heading("Assentos", text="ASSENTOS")  # Define cabeçalho da coluna Assentos
+tabela_historico.heading("Tipo", text="TIPO DE OPERAÇÃO")  # Define cabeçalho da coluna Tipo
+tabela_historico.heading("Data / Hora", text="DATA E HORA")  # Define cabeçalho da coluna Data/Hora
+
+tabela_historico.column("ID", width=60, anchor="center")  # Largura e alinhamento da coluna ID
+tabela_historico.column("Sala", width=120, anchor="center")  # Largura e alinhamento da coluna Sala
+tabela_historico.column("Assentos", width=300, anchor="center")  # Largura e alinhamento da coluna Assentos
+tabela_historico.column("Tipo", width=180, anchor="center")  # Largura e alinhamento da coluna Tipo
+tabela_historico.column("Data / Hora", width=220, anchor="center")  # Largura e alinhamento da coluna Data/Hora
+
+scrollbar = ttk.Scrollbar(frame_tabela, orient="vertical", command=tabela_historico.yview)  # Cria barra de rolagem vertical
+tabela_historico.configure(yscrollcommand=scrollbar.set)  # Conecta a barra de rolagem à tabela
+
+tabela_historico.pack(side="left", fill="both", expand=True, padx=(15, 0), pady=15)  # Empacota a tabela à esquerda
+scrollbar.pack(side="right", fill="y", padx=(0, 15), pady=15)  # Empacota a barra de rolagem à direita
+
+# Botão de Voltar na tela de Histórico
+ctk.CTkButton(  # Botão para regressar ao menu inicial
+    frame_historico, text="🏠 Voltar ao Início", width=220, height=45,  # Texto e dimensões
+    fg_color="#CC91AE", hover_color="#B77A99", text_color="white", font=("Arial", 14, "bold"),  # Estilo do botão
+    command=lambda: mostrar_tela(frame_inicial)  # Ação ao clicar
+).pack(pady=20)  # Posiciona o botão com margem inferior
 
 ctk.CTkLabel(  # Adiciona a barra de rodapé na tela inicial
     frame_inicial,  # Frame onde será desenhado o rodapé
