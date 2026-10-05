@@ -1,4 +1,4 @@
-import customtkinter as ctk  # Importa a biblioteca CustomTkinter para criar a interface gráfica moderna
+import customtkinter as ctk 
 from tkinter import messagebox, ttk  # Importa caixas de mensagem e o módulo ttk (Treeview/Style) do Tkinter
 import psycopg  # Importa a biblioteca para conectar o Python ao banco de dados PostgreSQL/pgAdmin
 from PIL import Image  # Importa o módulo Image do Pillow para abrir e manipular as imagens dos pôsteres
