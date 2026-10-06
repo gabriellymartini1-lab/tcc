@@ -1,5 +1,4 @@
-import psycopg  # Importa a biblioteca para conectar ao banco de dados PostgreSQL/pgAdmin
-
+import psycopg
 
 DB_CONFIG = {  # Cria um dicionario com as credenciais e configuracoes de acesso ao PostgreSQL / pgAdmin 4
     "dbname": "cinema",  # Nome da base de dados criada no pgAdmin 4
