@@ -23,22 +23,41 @@ ctk.set_appearance_mode("dark")
 
 cinema = ctk.CTk()
 cinema.title("cinema ruby")
-cinema.geometry("1600x800")
+
+
+#def mostrar_sala_1():
+    #fazer  
+
+
 
 titulo = ctk.CTkLabel(
     cinema, 
     text="CINEMA RUBY", 
-    font=("Bernard MT Condensed", 46, "bold"), 
+    font=("Arial", 46, "bold"), 
     bg_color="transparent", 
     fg_color="transparent", 
-    text_color="#fffdfd"
+    text_color="#D19ABE"
 )
-titulo.pack(pady = 20)
+titulo.pack(pady=(20, 0), anchor="w", padx=60) 
 
-#def mostrar_sala_1():
-    #fazer   
+#btn_historico = ctk.CTkButton(
+    #cinema,
+    #text="📜 HISTÓRICO",
+    #font=("Arial", 13, "bold"),
+    #fg_color="#8F4D75",
+    #hover_color="#713A5D",
+    #text_color="white",
+    #width=140,
+    #height=35,
+    #command=abrir_historico
+#)
+
+#btn_historico.pack(
+    #side="right",
+    #padx=10
+#)
       
-frame_imagens = ctk.CTkFrame(cinema, height=550, width=1500, fg_color="transparent")
+frame_imagens = ctk.CTkFrame(cinema, height=550, width=1500, fg_color="#463940")
 frame_imagens.pack()
 
 frame_imagens.grid_propagate(False)
@@ -79,8 +98,8 @@ label_um_cabra_bom_de_bola_imagem = ctk.CTkLabel(frame_imagens, text="", image=i
 label_um_cabra_bom_de_bola_imagem.grid(row=0, column= 4, padx = 10, pady = 20)
 
 #frame odisseia
-frame_odisseia = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#f38989")
-frame_odisseia.place(x=75, y=640) 
+frame_odisseia = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#D19ABE")
+frame_odisseia.place(x=230, y=640) 
 
 frame_odisseia.pack_propagate(False)
 
@@ -91,91 +110,93 @@ botao_odisseia = ctk.CTkButton(
     frame_odisseia, 
     text="ENTRAR", 
     font=("Arial", 12, "bold"),
-    fg_color="#e25757",
-    hover_color="#aa4c4c",
+    fg_color="#8F4D75",
+    hover_color="#713A5D",
     width=100, 
     height=35 
 )
 botao_odisseia.place(x=15, y=70)
 
 #frame obsessao
-frame_obsessao = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#f16969")
-frame_obsessao.place(x=370, y=640) 
+frame_obsessao = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#CC91AE")
+frame_obsessao.place(x=525, y=640) 
 
 frame_obsessao.pack_propagate(False)
 
-label_obsessao = ctk.CTkLabel(frame_obsessao, text="🎬\nA OBSESSAO", font=("Arial", 18, "bold"), justify="left")
+label_obsessao = ctk.CTkLabel(frame_obsessao, text="🍿\nA OBSESSAO", font=("Arial", 18, "bold"), justify="left")
 label_obsessao.place(x=15, y=15)
 
 botao_obsessao = ctk.CTkButton(
     frame_obsessao, 
     text="ENTRAR", 
     font=("Arial", 12, "bold"),
-    fg_color="#e24c4c",
-    hover_color="#9c3b3b",
+    fg_color="#8F4D75",
+    hover_color="#713A5D",
     width=100, 
     height=35 
 )
 botao_obsessao.place(x=15, y=70)
 
 #frame homem aranha
-frame_homem_aranha = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#e64949")
-frame_homem_aranha.place(x=670, y=640) 
+frame_homem_aranha = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#B8789C")
+frame_homem_aranha.place(x=825, y=640) 
 
 frame_homem_aranha.pack_propagate(False)
 
-label_homem_aranha = ctk.CTkLabel(frame_homem_aranha, text="🎬\n HOMEM ARANHA", font=("Arial", 18, "bold"), justify="left")
+label_homem_aranha = ctk.CTkLabel(frame_homem_aranha, text="🎥\n HOMEM ARANHA", font=("Arial", 18, "bold"), justify="left")
 label_homem_aranha.place(x=15, y=15)
 
 botao_homem_aranha = ctk.CTkButton(
     frame_homem_aranha, 
     text="ENTRAR", 
     font=("Arial", 12, "bold"),
-    fg_color="#c92b2b",
-    hover_color="#a33030",
+    fg_color="#8F4D75",
+    hover_color="#713A5D",
     width=100, 
     height=35 
 )
 botao_homem_aranha.place(x=15, y=70)
 
 #frame toy story
-frame_toy_story_5 = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#db3434")
-frame_toy_story_5.place(x=970, y=640) 
+frame_toy_story_5 = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#A4608A")
+frame_toy_story_5.place(x=1125, y=640) 
 
 frame_toy_story_5.pack_propagate(False)
 
-label_toy_story_5 = ctk.CTkLabel(frame_toy_story_5, text="🎬\n TOY STORY 5", font=("Arial", 18, "bold"), justify="left")
+label_toy_story_5 = ctk.CTkLabel(frame_toy_story_5, text="📹\n TOY STORY 5", font=("Arial", 18, "bold"), justify="left")
 label_toy_story_5.place(x=15, y=15)
 
 botao_toy_story_5 = ctk.CTkButton(
     frame_toy_story_5, 
     text="ENTRAR", 
     font=("Arial", 12, "bold"),
-    fg_color="#D11E1E",
-    hover_color="#8d2929",
+    fg_color="#8F4D75",
+    hover_color="#713A5D",
     width=100, 
     height=35 
 )
 botao_toy_story_5.place(x=15, y=70)
 
 #frame um cabra bom de bola
-frame_um_cabra_bom_de_cabra = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#e63535")
-frame_um_cabra_bom_de_cabra.place(x=1270, y=640) 
+frame_um_cabra_bom_de_cabra = ctk.CTkFrame(cinema, height=130, width=270, fg_color="#8F4B77")
+frame_um_cabra_bom_de_cabra.place(x=1425, y=640) 
 
 frame_um_cabra_bom_de_cabra.pack_propagate(False)
 
-label_um_cabra_bom_de_cabra = ctk.CTkLabel(frame_um_cabra_bom_de_cabra, text="🎬\n UM CABRA BOM DE BOLA", font=("Arial", 18, "bold"), justify="left")
+label_um_cabra_bom_de_cabra = ctk.CTkLabel(frame_um_cabra_bom_de_cabra, text="🎞️\n UM CABRA BOM DE BOLA", font=("Arial", 18, "bold"), justify="left")
 label_um_cabra_bom_de_cabra.place(x=15, y=15)
 
 botao_um_cabra_bom_de_cabra = ctk.CTkButton(
     frame_um_cabra_bom_de_cabra, 
     text="ENTRAR", 
     font=("Arial", 12, "bold"),
-    fg_color="#D11E1E",
-    hover_color="#8d2929",
+    fg_color="#8F4D75",
+    hover_color="#713A5D",
     width=100, 
     height=35 
 )
 botao_um_cabra_bom_de_cabra.place(x=15, y=70)
+
+cinema.attributes("-fullscreen", True)
 
 cinema.mainloop()
